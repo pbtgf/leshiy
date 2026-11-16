@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Лесной фотограф — свет сквозь ветви</title>
+<style>
+  /* ---------- БАЗА ---------- */
+  :root{
+    --forest-deep: #0f1a14;      
+    --forest: #1c2b22;           
+    --forest-soft: #2a3d30;      
+    --moss: #4a5d4e;             
+    --grey: #8a8f88;             
+    --bark: #3b2f26;             
+    --gold: #c9a227;             
+    --gold-soft: #e0c46c;        
+    --paper: #e8e4da;            
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background: var(--forest-deep);
+    color: var(--paper);
+    font-family: "Georgia", "Times New Roman", serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+    transition: background 1s ease, color 1s ease;
+  }
+
+  /* Ночной режим (режим лешего) */
+  body.leshy-mode {
+    --forest-deep: #050a07;
+    --forest: #0f1a14;
+    --forest-soft: #1c2b22;
+    --paper: #b0b5ab;
+  }
+
+  ::selection{ background: var(--gold); color: var(--forest-deep); }
+
+  a{ color: inherit; text-decoration: none; }
+
+  /* ---------- ЗЕРНО / ТЕКСТУРА ---------- */
+  body::before{
+    content:"";
+    position: fixed; inset:0;
+    pointer-events:none;
+    z-index: 1;
+    opacity: .05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- СВЕТЛЯЧКИ ---------- */
+  .fireflies-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+  }
+
+  body.leshy-mode .fireflies-container {
+    opacity: 1;
+  }
+
+  .firefly {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--gold-soft);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold-soft);
+    opacity: 0;
+    animation: floatFirefly linear infinite;
+  }
+
+  @keyframes floatFirefly {
+    0% { transform: translateY(0) translateX(0); opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+  }
+
+  /* ---------- ХЕДЕР ---------- */
+  header{
+    position: fixed;
+    top:0; left:0; right:0;
+    z-index: 1000;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding: 22px 6vw;
+    transition: background .5s ease, padding .5s ease, backdrop-filter .5s ease;
+    background: transparent;
+  }
+  
+  header.scrolled{
+    background: rgba(15, 26, 20, 0.95); 
+    padding: 14px 6vw;
+    border-bottom: 1px solid rgba(201,162,39,.15);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
+  }
+
+  .logo{
+    font-size: 1.05rem;
+    letter-spacing: .35em;
+    text-transform: uppercase;
+    color: var(--paper);
+    display:flex; align-items:center; gap:12px;
+    position: relative;
+    z-index: 1001;
+  }
+  .logo .dot{
+    width:7px; height:7px; border-radius:50%;
+    background: var(--gold);
+    box-shadow: 0 0 12px var(--gold);
+    animation: pulse 3s infinite ease-in-out;
+  }
+  @keyframes pulse{
+    0%,100%{ opacity:.5; transform:scale(.9); }
+    50%{ opacity:1; transform:scale(1.15); }
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    position: relative;
+    z-index: 1001;
+  }
+
+  nav ul{
+    display:flex; gap: 38px;
+    list-style:none;
+  }
+  nav a{
+    font-size: .8rem;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--grey);
+    position: relative;
+    transition: color .3s ease;
+  }
+  nav a::after{
+    content:"";
+    position:absolute;
+    left:0; bottom:-6px;
+    width:0; height:1px;
+    background: var(--gold);
+    transition: width .4s ease;
+  }
+  nav a:hover{ color: var(--paper); }
+  nav a:hover::after{ width:100%; }
+
+  .mode-toggle-header {
+    background: transparent;
+    border: 1px solid rgba(201,162,39,.3);
+    color: var(--moss);
+    padding: 8px 15px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mode-toggle-header:hover {
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+
+  /* ---------- ГЛАВНЫЙ ЭКРАН ---------- */
+  .hero{
+    position: relative;
+    min-height: 100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding: 0 6vw;
+    overflow:hidden;
+  }
+
+  .hero .rays{
+    position:absolute;
+    inset:-20%;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(201,162,39,.18), transparent 55%),
+      radial-gradient(ellipse at 70% 30%, rgba(224,196,108,.08), transparent 45%);
+    pointer-events:none;
+    animation: sway 14s ease-in-out infinite alternate;
+    z-index: 0;
+    transition: opacity 1s ease;
+  }
+
+  body.leshy-mode .hero .rays { opacity: 0; }
+
+  .hero .fog{
+    position:absolute;
+    bottom:-10%; left:-10%; right:-10%;
+    height: 45%;
+    background: radial-gradient(ellipse at 50% 100%, rgba(42,61,48,.55), transparent 70%);
+    filter: blur(30px);
+    animation: drift 20s ease-in-out infinite alternate;
+    pointer-events:none;
+    z-index: 0;
+    transition: opacity 1s ease;
+  }
+
+  body.leshy-mode .hero .fog { 
+    opacity: 1.5; 
+    background: radial-gradient(ellipse at 50% 100%, rgba(5,10,7,.8), transparent 80%); 
+  }
+
+  @keyframes sway{
+    from{ transform: translateX(-2%) translateY(-1%); }
+    to{ transform: translateX(2%) translateY(1%); }
+  }
+  @keyframes drift{
+    from{ transform: translateX(-4%); }
+    to{ transform: translateX(4%); }
+  }
+
+  .hero-content{
+    position: relative;
+    z-index: 2; 
+    margin-top: 50px;
+    width: 100%;
+  }
+
+  .hero-kicker{
+    font-size: .75rem;
+    letter-spacing: .5em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 28px;
+    opacity:0;
+    animation: fadeUp 1.2s .2s forwards ease-out;
+  }
+
+  .hero-text-container {
+    position: relative;
+    min-height: 250px;
+  }
+
+  .hero-text-day, .hero-text-night {
+    transition: opacity 1s ease, transform 1s ease;
+  }
+
+  .hero-text-day {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .hero-text-night {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+  }
+
+  body.leshy-mode .hero-text-day {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  body.leshy-mode .hero-text-night {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .hero h1{
+    font-size: clamp(2.6rem, 7vw, 6rem);
+    font-weight: 400;
+    letter-spacing: .02em;
+    line-height: 1.1;
+    max-width: 16ch;
+    margin: 0 auto;
+  }
+  .hero h1 em{
+    font-style: italic;
+    color: var(--gold-soft);
+  }
+
+  .hero p{
+    margin: 30px auto 0;
+    max-width: 46ch;
+    font-size: 1.05rem;
+    color: var(--grey);
+  }
+
+  @keyframes fadeUp{
+    from{ opacity:0; transform: translateY(30px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  /* ---------- БЕГУЩАЯ СТРОКА ---------- */
+  .marquee {
+    width: 100vw;
+    overflow: hidden;
+    background: var(--forest);
+    border-top: 1px solid rgba(201,162,39,.1);
+    border-bottom: 1px solid rgba(201,162,39,.1);
+    padding: 12px 0;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    transition: background 1s ease;
+  }
+  
+  .marquee-content {
+    display: flex;
+    white-space: nowrap;
+    animation: scroll 25s linear infinite;
+  }
+  
+  .marquee-content span {
+    font-size: 0.85rem;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: var(--moss);
+    padding: 0 30px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    transition: color 1s ease;
+  }
+  
+  .marquee-content span::after {
+    content: "·";
+    color: var(--gold);
+    font-size: 1.2rem;
+  }
+
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  body.leshy-mode .marquee-content span {
+    color: var(--gold-soft);
+  }
+
+  /* ---------- СЕКЦИИ ---------- */
+  section{
+    position: relative;
+    padding: 140px 6vw;
+    z-index: 2;
+  }
+
+  .reveal{
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 1s cubic-bezier(.2,.8,.2,1), transform 1s cubic-bezier(.2,.8,.2,1);
+  }
+  .reveal.active{
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.15s; }
+  .reveal-delay-2 { transition-delay: 0.3s; }
+  .reveal-delay-3 { transition-delay: 0.45s; }
+
+  .section-label{
+    font-size: .72rem;
+    letter-spacing: .45em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+    display:flex; align-items:center; gap:16px;
+  }
+  .section-label::before{
+    content:"";
+    width:40px; height:1px;
+    background: var(--gold);
+    opacity:.6;
+  }
+
+  h2{
+    font-size: clamp(1.8rem, 4vw, 3.2rem);
+    font-weight: 400;
+    line-height: 1.15;
+    max-width: 20ch;
+    margin-bottom: 40px;
+  }
+  h2 em{ font-style: italic; color: var(--gold-soft); }
+
+  /* ---------- О СЕБЕ ---------- */
+  .about{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8vw;
+    align-items: center;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  .about-text-container { position: relative; }
+
+  .about-day, .about-night {
+    transition: opacity 1s ease, transform 1s ease;
+  }
+
+  .about-day { opacity: 1; transform: translateY(0); }
+
+  .about-night {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+  }
+
+  body.leshy-mode .about-day { opacity: 0; transform: translateY(-20px); }
+  body.leshy-mode .about-night { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+  .about-text p{
+    color: var(--grey);
+    margin-bottom: 22px;
+    font-size: 1.02rem;
+    max-width: 46ch;
+  }
+  .about-text p strong{ color: var(--paper); font-weight: 400; }
+
+  .about-stats {
+    display: flex;
+    gap: 40px;
+    margin: 40px 0;
+    border-top: 1px solid rgba(201,162,39,.15);
+    border-bottom: 1px solid rgba(201,162,39,.15);
+    padding: 20px 0;
+  }
+  
+  .stat-item h4 {
+    font-size: 2rem;
+    color: var(--gold-soft);
+    font-weight: 400;
+    line-height: 1;
+    margin-bottom: 5px;
+  }
+  
+  .stat-item p {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--moss);
+    margin-bottom: 0;
+  }
+
+  .about-sign{
+    margin-top: 20px;
+    font-style: italic;
+    color: var(--gold-soft);
+    font-size: 1.1rem;
+  }
+
+  .about-visual-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .about-visual{
+    position: relative;
+    background: #e8e4da;
+    padding: 14px 14px 60px 14px;
+    border-radius: 2px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,162,39,0.1);
+    transform: rotate(-2.5deg);
+    transition: transform 0.6s cubic-bezier(.2,.8,.2,1), box-shadow 0.6s ease;
+    max-width: 85%;
+  }
+  
+  .about-visual:hover {
+    transform: rotate(0deg) scale(1.02);
+    box-shadow: 0 20px 45px rgba(0,0,0,0.7), 0 0 0 1px rgba(201,162,39,0.3);
+  }
+
+  .about-visual::after {
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #e0c46c, #c9a227);
+    box-shadow: 1px 2px 4px rgba(0,0,0,0.6), inset -1px -1px 2px rgba(0,0,0,0.3);
+    z-index: 10;
+  }
+
+  .about-visual .photo-inner {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/5;
+    overflow: hidden;
+    background: #000;
+  }
+  
+  .about-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: sepia(15%) contrast(1.05);
+    transition: transform 1.2s cubic-bezier(.2,.8,.2,1), filter 1s ease;
+  }
+  
+  .about-visual:hover .about-img { transform: scale(1.04); }
+
+  body.leshy-mode .about-img {
+    filter: sepia(0%) contrast(1.2) brightness(0.7) hue-rotate(180deg);
+  }
+
+  .about-visual .caption{
+    position:absolute;
+    bottom: 18px; left: 20px; right: 20px;
+    font-family: "Georgia", serif;
+    font-style: italic;
+    font-size: .8rem;
+    color: #3b2f26;
+    text-align: center;
+    z-index: 2; 
+    line-height: 1.2;
+  }
+
+  .about-visual .caption-night { display: none; }
+  body.leshy-mode .about-visual .caption-day { display: none; }
+  body.leshy-mode .about-visual .caption-night { display: block; }
+
+  /* ---------- БЛОКИ ГАЛЕРЕИ (ДЕНЬ/НОЧЬ) ---------- */
+  .gallery-section-day, .gallery-section-night {
+    transition: opacity 1s ease, transform 1s ease;
+  }
+
+  .gallery-section-night {
+    display: none;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  body.leshy-mode .gallery-section-day {
+    display: none;
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  body.leshy-mode .gallery-section-night {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .gallery-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap: 30px;
+    max-width: 1300px;
+    margin: 0 auto 70px;
+  }
+  .gallery-head h2{ margin-bottom:0; }
+
+  .gallery{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  .frame{
+    position: relative;
+    aspect-ratio: 3/4;
+    overflow:hidden;
+    border-radius: 2px;
+    cursor: pointer;
+    background: var(--forest);
+    border: 1px solid rgba(201,162,39,.1);
+    transition: transform 0.4s ease, margin 0.4s ease;
+  }
+
+  /* --- ДНЕВНАЯ ГАЛЕРЕЯ (КАК БЫЛО) --- */
+  #gallery-day .frame:nth-child(4){ 
+    grid-column: span 2; 
+    aspect-ratio: 16/10; 
+  }
+
+  /* --- НОЧНАЯ ГАЛЕРЕЯ (АСИММЕТРИЯ) --- */
+  #gallery-night .gallery {
+    align-items: start;
+  }
+
+  #gallery-night .frame:nth-child(1) {
+    margin-top: 60px;
+  }
+
+  #gallery-night .frame:nth-child(2) {
+    margin-top: 0;
+  }
+
+  #gallery-night .frame:nth-child(3) {
+    margin-top: 100px;
+  }
+
+  #gallery-night .frame:nth-child(4) {
+    grid-column: span 2; 
+    aspect-ratio: 16/10; 
+    margin-top: 0; 
+  }
+
+  #gallery-night .frame:nth-child(5) {
+    margin-top: 40px;
+  }
+
+  #gallery-night .frame:hover {
+    margin-top: 0 !important;
+    transform: translateY(-5px);
+    z-index: 10;
+  }
+
+  .frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 1.2s cubic-bezier(.2,.8,.2,1), filter 1s ease;
+  }
+  
+  .frame:hover img { transform: scale(1.06); }
+
+  body.leshy-mode .frame img {
+    filter: brightness(0.7) contrast(1.1);
+  }
+
+  .frame::after{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, transparent 55%, rgba(15,26,20,.85));
+    opacity:0;
+    transition: opacity .5s ease;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .frame:hover::after{ opacity:1; }
+
+  .frame .meta{
+    position:absolute;
+    bottom: 20px; left: 20px;
+    z-index:2;
+    opacity:0;
+    transform: translateY(10px);
+    transition: opacity .5s ease .1s, transform .5s ease .1s;
+  }
+  .frame:hover .meta{ opacity:1; transform: translateY(0); }
+  .frame .meta span{
+    display:block;
+    font-size: .7rem;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: var(--gold-soft);
+    margin-bottom: 6px;
+  }
+  .frame .meta p{
+    font-size: .95rem;
+    color: var(--paper);
+  }
+
+  /* ---------- СЕЗОНЫ / ЦИКЛЫ ---------- */
+  .seasons-day, .seasons-night {
+    transition: opacity 1s ease, transform 1s ease;
+  }
+
+  .seasons-night {
+    display: none;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  body.leshy-mode .seasons-day {
+    display: none;
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  body.leshy-mode .seasons-night {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .seasons {
+    background: var(--forest);
+    border-top: 1px solid rgba(201,162,39,.1);
+    border-bottom: 1px solid rgba(201,162,39,.1);
+    transition: background-color 0.8s ease;
+  }
+
+  .seasons-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 60px;
+    max-width: 1100px;
+    margin: 0 auto;
+    align-items: center;
+  }
+
+  .seasons-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .season-btn {
+    background: transparent;
+    border: none;
+    color: var(--grey);
+    font-family: inherit;
+    font-size: 1.2rem;
+    text-align: left;
+    padding: 15px 20px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    position: relative;
+    border-left: 2px solid rgba(201,162,39,.2);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .season-btn:hover {
+    color: var(--paper);
+    border-left-color: var(--gold-soft);
+    background: rgba(201,162,39,0.05);
+  }
+
+  .season-btn.active {
+    color: var(--gold-soft);
+    border-left: 2px solid var(--gold);
+    background: rgba(201,162,39,0.1);
+    font-size: 1.4rem;
+    padding-left: 30px;
+  }
+
+  .season-btn.active::after {
+    content: "";
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--gold);
+  }
+
+  .season-content {
+    position: relative;
+    padding: 50px;
+    border: 1px solid rgba(201,162,39,.15);
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    transition: background-color 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease;
+    background-color: var(--forest-deep);
+  }
+
+  .season-content.theme-dawn {
+    background-color: #1a1e15;
+    border-color: rgba(138, 159, 138, 0.2);
+    box-shadow: inset 0 0 60px rgba(74, 93, 78, 0.1);
+  }
+  
+  .season-content.theme-noon {
+    background-color: #121a14;
+    border-color: rgba(201, 162, 39, 0.2);
+    box-shadow: inset 0 0 60px rgba(201, 162, 39, 0.08);
+  }
+
+  .season-content.theme-sunset {
+    background-color: #1a1512;
+    border-color: rgba(153, 101, 59, 0.2);
+    box-shadow: inset 0 0 60px rgba(153, 101, 59, 0.1);
+  }
+
+  .season-content.theme-twilight {
+    background-color: #111315;
+    border-color: rgba(138, 143, 136, 0.15);
+    box-shadow: inset 0 0 60px rgba(138, 143, 136, 0.08);
+  }
+
+  .season-content.theme-newmoon {
+    background-color: #050a07;
+    border-color: rgba(201, 162, 39, 0.3);
+    box-shadow: inset 0 0 80px rgba(201, 162, 39, 0.05);
+  }
+  
+  .season-content.theme-crescent {
+    background-color: #0d1410;
+    border-color: rgba(138, 159, 138, 0.3);
+    box-shadow: inset 0 0 80px rgba(138, 159, 138, 0.05);
+  }
+
+  .season-content.theme-fullmoon {
+    background-color: #121416;
+    border-color: rgba(176, 181, 171, 0.3);
+    box-shadow: inset 0 0 80px rgba(176, 181, 171, 0.1);
+  }
+
+  .season-content.theme-waning {
+    background-color: #151211;
+    border-color: rgba(153, 101, 59, 0.25);
+    box-shadow: inset 0 0 80px rgba(153, 101, 59, 0.05);
+  }
+
+  .season-number {
+    position: absolute;
+    top: -20px;
+    right: 10px;
+    font-size: 9rem;
+    color: rgba(201,162,39,.05);
+    font-weight: bold;
+    line-height: 1;
+    z-index: 0;
+    pointer-events: none;
+    transition: color 0.8s ease;
+  }
+
+  .theme-dawn .season-number { color: rgba(138, 159, 138, 0.08); }
+  .theme-noon .season-number { color: rgba(201, 162, 39, 0.08); }
+  .theme-sunset .season-number { color: rgba(153, 101, 59, 0.1); }
+  .theme-twilight .season-number { color: rgba(138, 143, 136, 0.08); }
+
+  .theme-newmoon .season-number { color: rgba(201, 162, 39, 0.1); }
+  .theme-crescent .season-number { color: rgba(138, 159, 138, 0.1); }
+  .theme-fullmoon .season-number { color: rgba(176, 181, 171, 0.1); }
+  .theme-waning .season-number { color: rgba(153, 101, 59, 0.1); }
+
+  .season-text {
+    position: relative;
+    z-index: 1;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  .season-text.hidden {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .season-title {
+    font-size: 2.2rem;
+    font-style: italic;
+    margin-bottom: 20px;
+    transition: color 0.8s ease;
+  }
+
+  .theme-dawn .season-title { color: #a3b8a3; }
+  .theme-noon .season-title { color: var(--gold-soft); }
+  .theme-sunset .season-title { color: #c4875b; }
+  .theme-twilight .season-title { color: #a8b0ab; }
+
+  .theme-newmoon .season-title { color: var(--gold-soft); }
+  .theme-crescent .season-title { color: #a3b8a3; }
+  .theme-fullmoon .season-title { color: #e8e4da; }
+  .theme-waning .season-title { color: #c4875b; }
+
+  .season-desc {
+    color: var(--grey);
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 30px;
+  }
+
+  .season-quote {
+    font-size: 0.9rem;
+    color: var(--moss);
+    font-style: italic;
+    border-top: 1px dashed rgba(74,93,78,.5);
+    padding-top: 15px;
+    transition: border-color 0.8s ease;
+  }
+
+  .theme-dawn .season-quote { border-color: rgba(138, 159, 138, 0.3); }
+  .theme-sunset .season-quote { border-color: rgba(153, 101, 59, 0.3); }
+  .theme-twilight .season-quote { border-color: rgba(138, 143, 136, 0.3); }
+
+  /* ---------- ДНЕВНИК ---------- */
+  .diary {
+    background: var(--forest-deep);
+  }
+
+  .diary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .diary-note {
+    position: relative;
+    background: var(--forest);
+    border: 1px solid rgba(201,162,39,.15);
+    padding: 30px;
+    border-radius: 2px;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    transform: rotate(-0.5deg);
+  }
+
+  .diary-note:nth-child(even) {
+    transform: rotate(0.5deg);
+  }
+
+  .diary-note:hover {
+    transform: rotate(0deg) translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    border-color: rgba(201,162,39,.4);
+  }
+
+  .diary-note::before {
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #e0c46c, #c9a227);
+    box-shadow: 1px 2px 4px rgba(0,0,0,0.6);
+    z-index: 10;
+  }
+
+  .diary-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--moss);
+    margin-bottom: 15px;
+    border-bottom: 1px dashed rgba(74,93,78,.5);
+    padding-bottom: 10px;
+  }
+
+  .diary-meta span:first-child {
+    color: var(--gold);
+  }
+
+  .diary-note p {
+    font-size: 1rem;
+    color: var(--paper);
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  .diary-note p strong {
+    color: var(--gold-soft);
+    font-weight: normal;
+  }
+
+  .diary-day, .diary-night {
+    transition: opacity 1s ease, transform 1s ease;
+  }
+
+  .diary-night {
+    display: none;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  body.leshy-mode .diary-day {
+    display: none;
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  body.leshy-mode .diary-night {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---------- ФИЛОСОФИЯ ---------- */
+  .philosophy{
+    text-align:center;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 160px 6vw;
+  }
+  .philosophy .section-label{ justify-content:center; }
+  .philosophy .section-label::before{ display:none; }
+  .philosophy blockquote{
+    font-size: clamp(1.4rem, 3.2vw, 2.4rem);
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--paper);
+  }
+  .philosophy blockquote em{ color: var(--gold-soft); font-style: italic; }
+  .philosophy cite{
+    display:block;
+    margin-top: 34px;
+    font-size: .8rem;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: var(--moss);
+    font-style: normal;
+  }
+
+  /* ---------- КОНТАКТ ---------- */
+  .contact{
+    border-top: 1px solid rgba(201,162,39,.12);
+    text-align:center;
+    padding: 140px 6vw 80px;
+    position: relative;
+  }
+  
+  .contact h2 { margin: 0 auto 20px; }
+
+  .contact-subtitle {
+    color: var(--grey);
+    font-size: 1.1rem;
+    max-width: 50ch;
+    margin: 0 auto 50px;
+    line-height: 1.6;
+  }
+
+  .tg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    background: var(--gold);
+    color: var(--forest-deep);
+    padding: 20px 50px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    box-shadow: 0 10px 30px rgba(201,162,39,0.2);
+    position: relative;
+    z-index: 2;
+  }
+
+  .tg-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(201,162,39,0.4);
+    background: var(--gold-soft);
+  }
+
+  .tg-btn svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+
+  .tver-joke {
+    margin-top: 40px;
+    font-size: 0.85rem;
+    color: var(--moss);
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    opacity: 0.8;
+  }
+  
+  .tver-joke::before, .tver-joke::after {
+    content: "~";
+    color: var(--gold);
+    opacity: 0.5;
+  }
+
+  /* Смена шутки */
+  .joke-day { display: block; }
+  .joke-night { display: none; }
+  body.leshy-mode .joke-day { display: none; }
+  body.leshy-mode .joke-night { display: block; }
+
+  .contact-info {
+    margin-top: 80px;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    border-top: 1px solid rgba(201,162,39,.1);
+    padding-top: 40px;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .contact-item {
+    text-align: left;
+  }
+
+  .contact-item span {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--moss);
+    margin-bottom: 5px;
+  }
+
+  .contact-item p {
+    font-size: 1.1rem;
+    color: var(--paper);
+    font-style: italic;
+  }
+
+  /* ---------- КНОПКА НАВЕРХ ---------- */
+  .back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: var(--forest);
+    border: 1px solid rgba(201,162,39,.2);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--gold);
+    z-index: 999;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all 0.4s cubic-bezier(.2,.8,.2,1);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+
+  .back-to-top.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .back-to-top:hover {
+    background: var(--gold);
+    color: var(--forest-deep);
+    border-color: var(--gold);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(201,162,39,0.3);
+  }
+
+  .back-to-top svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.3s ease;
+  }
+
+  .back-to-top:hover svg { transform: translateY(-3px); }
+
+  /* ---------- ФУТЕР ---------- */
+  footer{
+    text-align:center;
+    padding: 40px 6vw;
+    font-size: .72rem;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: var(--moss);
+    border-top: 1px solid rgba(201,162,39,.08);
+  }
+
+  /* ---------- АДАПТИВ ---------- */
+  @media (max-width: 900px){
+    .header-right { gap: 20px; }
+    nav ul{ display:none; }
+    
+    .about{ grid-template-columns: 1fr; gap: 50px; }
+    .about-visual{ max-width: 320px; margin: 0 auto; }
+    .about-stats { justify-content: space-around; }
+    
+    /* Дневная галерея на планшете */
+    #gallery-day .gallery { grid-template-columns: 1fr 1fr; }
+    #gallery-day .frame:nth-child(4){ grid-column: span 2; }
+    
+    /* Ночная галерея на планшете - сбрасываем отступы */
+    #gallery-night .gallery { grid-template-columns: 1fr 1fr; }
+    #gallery-night .frame:nth-child(1),
+    #gallery-night .frame:nth-child(2),
+    #gallery-night .frame:nth-child(3),
+    #gallery-night .frame:nth-child(5) { margin-top: 0 !important; }
+    #gallery-night .frame:nth-child(4) { grid-column: span 2; margin-top: 0 !important; }
+    
+    .seasons-wrapper { grid-template-columns: 1fr; gap: 30px; }
+    .seasons-nav { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+    .season-btn { border-left: none; border-bottom: 2px solid rgba(201,162,39,.2); padding: 10px 15px; font-size: 1rem; }
+    .season-btn.active { border-bottom: 2px solid var(--gold); font-size: 1rem; padding-left: 15px; background: transparent; }
+    .season-btn.active::after { display: none; }
+    .season-content { padding: 30px 20px; min-height: auto; }
+    
+    .diary-grid { grid-template-columns: 1fr; }
+    .hero-content { margin-top: 0; }
+    section { padding: 100px 6vw; }
+    .back-to-top { bottom: 20px; right: 20px; width: 45px; height: 45px; }
+  }
+  @media (max-width: 560px){
+    #gallery-day .gallery { grid-template-columns: 1fr; }
+    #gallery-day .frame:nth-child(4){ grid-column: span 1; aspect-ratio: 3/4; }
+    
+    #gallery-night .gallery { grid-template-columns: 1fr; }
+    #gallery-night .frame:nth-child(4) { grid-column: span 1; aspect-ratio: 3/4; }
+    
+    .about-stats { flex-direction: column; gap: 20px; }
+    .contact-info { flex-direction: column; gap: 20px; text-align: center; }
+    .contact-item { text-align: center; }
+    .tg-btn { padding: 16px 30px; font-size: 0.9rem; flex-direction: column; }
+    .season-number { font-size: 6rem; }
+    .mode-toggle-header { padding: 6px 10px; font-size: 0.6rem; }
+    .logo { font-size: 0.9rem; letter-spacing: 0.2em; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation: none !important; transition: none !important; }
+    .frame{ opacity:1; transform:none; margin-top: 0 !important; }
+    .about-visual { transform: none; }
+    .diary-note { transform: none; }
+    .back-to-top { transition: none; }
+    .season-text { transition: none; }
+    .fireflies-container { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- СВЕТЛЯЧКИ -->
+<div class="fireflies-container" id="fireflies"></div>
+
+<!-- ХЕДЕР -->
+<header id="header">
+  <div class="logo"><span class="dot"></span> Лесной&nbsp;свет</div>
+  <div class="header-right">
+    <nav>
+      <ul>
+        <li><a href="#about">О себе</a></li>
+        <li><a href="#gallery">Галерея</a></li>
+        <li><a href="#seasons">Циклы</a></li>
+        <li><a href="#diary">Дневник</a></li>
+        <li><a href="#contact">Контакты</a></li>
+      </ul>
+    </nav>
+    <button class="mode-toggle-header" id="leshyBtn">🌲 Режим лешего</button>
+  </div>
+</header>
+
+<!-- ГЛАВНЫЙ ЭКРАН -->
+<section class="hero">
+  <div class="rays"></div>
+  <div class="fog"></div>
+  
+  <div class="hero-content">
+    <div class="hero-kicker">Фотограф · Лес · Тишина</div>
+    
+    <div class="hero-text-container">
+      <!-- Дневной текст -->
+      <div class="hero-text-day">
+        <h1>Я снимаю <em>свет</em>,<br>который пробивается<br>сквозь ветви</h1>
+        <p>Я леший — в хорошем смысле слова. Живу в лесу, слушаю его и веду этот сайт с любовью к деревьям и к своему делу.</p>
+      </div>
+
+      <!-- Ночной текст -->
+      <div class="hero-text-night">
+        <h1>Лес не спит.<br>Я <em>тоже</em>.</h1>
+        <p>Днем здесь шумно от птиц и людей. А ночью — только шорох листвы, крик совы и лунный свет, в котором рождаются самые честные кадры.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- БЕГУЩАЯ СТРОКА -->
+<div class="marquee">
+  <div class="marquee-content">
+    <span>Свет</span><span>Тишина</span><span>Мох</span><span>Рассвет</span><span>Туман</span><span>Кора</span>
+    <span>Свет</span><span>Тишина</span><span>Мох</span><span>Рассвет</span><span>Туман</span><span>Кора</span>
+  </div>
+</div>
+
+<!-- О СЕБЕ -->
+<section id="about">
+  <div class="about">
+    <div class="about-text-container reveal">
+      
+      <!-- Дневной текст -->
+      <div class="about-text about-day">
+        <div class="section-label">О себе</div>
+        <h2>Я не фотографирую лес.<br>Я <em>разговариваю</em> с ним.</h2>
+        <p><strong>Двенадцать лет</strong> я хожу по одним и тем же тропам — и каждый раз вижу их впервые. Лес не позирует. Он живёт своей жизнью, а я лишь свидетель.</p>
+        <p>Мой кабинет — это мох, кора и утренний туман. Мой рабочий день начинается за час до рассвета и заканчивается, когда последний луч уходит за стволы.</p>
+        
+        <div class="about-stats">
+          <div class="stat-item">
+            <h4>12</h4>
+            <p>лет в лесу</p>
+          </div>
+          <div class="stat-item">
+            <h4>40+</h4>
+            <p>рассветов в год</p>
+          </div>
+          <div class="stat-item">
+            <h4>0</h4>
+            <p>случайных кадров</p>
+          </div>
+        </div>
+        
+        <p>Здесь нет спешки. Только свет, тень и терпение. Если вы это чувствуете — нам по пути.</p>
+        <div class="about-sign">— Ваш лесной фотограф</div>
+      </div>
+
+      <!-- Ночной текст -->
+      <div class="about-text about-night">
+        <div class="section-label">Ночной сторож</div>
+        <h2>Днем я прячусь.<br>Ночью — <em>выхожу на охоту</em>.</h2>
+        <p>Когда последний грибник уходит домой, начинается моя смена. Луна — мой единственный софтбокс, а глаза сов — лучшие модели.</p>
+        <p>Я научился ходить без фонаря. Слушаю, как трещат ветки под лапами лис, и жду, когда туман поднимется над болотом.</p>
+        
+        <div class="about-stats">
+          <div class="stat-item">
+            <h4>300+</h4>
+            <p>ночей в чаще</p>
+          </div>
+          <div class="stat-item">
+            <h4>∞</h4>
+            <p>терпения</p>
+          </div>
+          <div class="stat-item">
+            <h4>1</h4>
+            <p>луна</p>
+          </div>
+        </div>
+        
+        <p>Если вы не боитесь темноты и умеете слушать — добро пожаловать в мой ночной лес.</p>
+        <div class="about-sign">— Ваш ночной леший</div>
+      </div>
+
+    </div>
+    
+    <div class="about-visual-wrapper reveal reveal-delay-1">
+      <div class="about-visual">
+        <div class="photo-inner">
+          <img src="images/7.jpg" alt="Череп во мху" class="about-img">
+        </div>
+        <div class="caption caption-day">Круговорот.<br>Мертвое питает живое</div>
+        <div class="caption caption-night">Кости леса.<br>О чем молчат мертвецы</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ГАЛЕРЕЯ (ДЕНЬ) -->
+<section id="gallery-day" class="gallery-section-day">
+  <div class="gallery-head reveal">
+    <div>
+      <div class="section-label">Избранное</div>
+      <h2>Свет, который<br><em>запомнился</em></h2>
+    </div>
+  </div>
+
+  <div class="gallery">
+    <div class="frame reveal">
+      <img src="images/1.jpg" alt="Сосновый бор">
+      <div class="meta"><span>01 · Бор</span><p>Строгие стражи тишины</p></div>
+    </div>
+    <div class="frame reveal reveal-delay-1">
+      <img src="images/8.jpg" alt="Коряга и мох">
+      <div class="meta"><span>02 · Золото сквозь иглы</span><p>Тот самый час, когда лес просыпается</p></div>
+    </div>
+    <div class="frame reveal reveal-delay-2">
+      <img src="images/6.jpg" alt="Упавшее дерево">
+      <div class="meta"><span>03 · Падение</span><p>Тот, кто вернулся в землю</p></div>
+    </div>
+    <div class="frame reveal reveal-delay-3">
+      <img src="images/3.jpg" alt="Древний страж">
+      <div class="meta"><span>04 · Древний страж</span><p>Уснувший навсегда</p></div>
+    </div>
+    <div class="frame reveal reveal-delay-3">
+      <img src="images/4.jpg" alt="Тропа в тумане">
+      <div class="meta"><span>05 · Туман</span><p>Шепот невидимых шагов</p></div>
+    </div>
+    <div class="frame reveal reveal-delay-3">
+      <img src="images/5.jpg" alt="Одинокая скамья">
+      <div class="meta"><span>06 · Приют</span><p>Место для случайного путника</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ГАЛЕРЕЯ (НОЧЬ) -->
+<section id="gallery-night" class="gallery-section-night">
+  <div class="gallery-head reveal">
+    <div>
+      <div class="section-label">Во тьме</div>
+      <h2>Ночные<br><em>тени</em></h2>
+    </div>
+  </div>
+
+  <div class="gallery">
+    <!-- Фото 1: Избушка -->
+    <div class="frame reveal">
+      <img src="images/11.jpg" alt="Заброшенная избушка">
+      <div class="meta"><span>01 · Пристанище</span><p>Здесь живет тишина</p></div>
+    </div>
+    
+    <!-- Фото 2: Вереск -->
+    <div class="frame reveal reveal-delay-1">
+      <img src="images/12.jpg" alt="Вереск в темноте">
+      <div class="meta"><span>02 · Вереск</span><p>Сиреневый туман</p></div>
+    </div>
+    
+    <!-- Фото 3: Белые цветы -->
+    <div class="frame reveal reveal-delay-2">
+      <img src="images/13.jpg" alt="Бледные цветы">
+      <div class="meta"><span>03 · Призраки</span><p>Бледные огни во мраке</p></div>
+    </div>
+    
+    <!-- Фото 4: Болото (Широкое) -->
+    <div class="frame reveal reveal-delay-3">
+      <img src="images/9.jpg" alt="Болото">
+      <div class="meta"><span>04 · Топь</span><p>Зеленая вода молчит</p></div>
+    </div>
+    
+    <!-- Фото 5: Мотылек -->
+    <div class="frame reveal reveal-delay-3">
+      <img src="images/10.jpg" alt="Мотылек на стекле">
+      <div class="meta"><span>05 · Мотылек</span><p>Гость на свету</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- СЕЗОНЫ (ДЕНЬ - СОЛНЕЧНЫЙ ЦИКЛ) -->
+<section id="seasons-day" class="seasons seasons-day">
+  <div class="gallery-head reveal">
+    <div>
+      <div class="section-label">Солнечный цикл</div>
+      <h2>Как меняется<br><em>свет</em></h2>
+    </div>
+  </div>
+  
+  <div class="seasons-wrapper reveal">
+    <div class="seasons-nav">
+      <button class="season-btn active" data-season="dawn">Рассвет</button>
+      <button class="season-btn" data-season="noon">Зенит</button>
+      <button class="season-btn" data-season="sunset">Закат</button>
+      <button class="season-btn" data-season="twilight">Сумерки</button>
+    </div>
+
+    <div class="season-content theme-dawn" id="seasonContent">
+      <div class="season-number" id="seasonNum">01</div>
+      <div class="season-text" id="seasonText">
+        <h3 class="season-title" id="seasonTitle">Первые лучи</h3>
+        <p class="season-desc" id="seasonDesc">Самый мягкий и нежный свет. Лес просыпается, туман стелется по земле, а лучи пробиваются сквозь ветви, создавая волшебные лучи.</p>
+        <div class="season-quote" id="seasonQuote">«Ради этого света я готов вставать в 4 утра. Главное — не забыть термос».</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- СЕЗОНЫ (НОЧЬ - ФАЗЫ ЛУНЫ) -->
+<section id="seasons-night" class="seasons seasons-night">
+  <div class="gallery-head reveal">
+    <div>
+      <div class="section-label">Ночной свет</div>
+      <h2>Фазы<br><em>луны</em></h2>
+    </div>
+  </div>
+  
+  <div class="seasons-wrapper reveal">
+    <div class="seasons-nav">
+      <button class="season-btn active" data-season="newmoon">Новолуние</button>
+      <button class="season-btn" data-season="crescent">Растущая</button>
+      <button class="season-btn" data-season="fullmoon">Полнолуние</button>
+      <button class="season-btn" data-season="waning">Убывающая</button>
+    </div>
+
+    <div class="season-content theme-newmoon" id="seasonContentNight">
+      <div class="season-number" id="seasonNumNight">01</div>
+      <div class="season-text" id="seasonTextNight">
+        <h3 class="season-title" id="seasonTitleNight">Черное небо</h3>
+        <p class="season-desc" id="seasonDescNight">Луны не видно. Самые темные ночи в году. Идеальное время для съемки звездного неба сквозь кроны и для долгих выдержек.</p>
+        <div class="season-quote" id="seasonQuoteNight">«В новолуние лес становится особенно глубоким. Света нет, но глаза привыкают».</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ДНЕВНИК -->
+<section id="diary" class="diary">
+  <div class="gallery-head reveal">
+    <div>
+      <div class="section-label">Прямо сейчас</div>
+      <h2>Заметки<br><em>на ходу</em></h2>
+    </div>
+  </div>
+
+  <!-- Дневник (ДЕНЬ) -->
+  <div class="diary-day">
+    <div class="diary-grid">
+      <div class="diary-note reveal">
+        <div class="diary-meta">
+          <span>Сегодня · 05:12</span>
+          <span>Где-то в чаще</span>
+        </div>
+        <p>Пришел на точку за час до рассвета. Туман такой густой, что не видно собственных ботинок. Сижу на поваленном дереве, пью чай из термоса. <strong>Комар пытался украсть мой бутерброд. Мы не договорились.</strong></p>
+      </div>
+
+      <div class="diary-note reveal reveal-delay-1">
+        <div class="diary-meta">
+          <span>Вчера · 19:40</span>
+          <span>У старого пня</span>
+        </div>
+        <p>Сегодня нашел идеальный кадр, но понял, что оставил карту памяти в машине. Полчаса медитации на тему «зачем я вообще сюда пришел». Зато услышал, как дятел выбивает свой ритм. <strong>Вернусь завтра, с картой и без спешки.</strong></p>
+      </div>
+
+      <div class="diary-note reveal">
+        <div class="diary-meta">
+          <span>Суббота · 14:20</span>
+          <span>Глухая тропа</span>
+        </div>
+        <p>Решил пойти туда, где нет троп. Нашел заросли мха, похожие на зеленое одеяло. Лег, посмотрел в небо сквозь кроны. <strong>Кажется, я слышал, как растет папоротник. Или это просто белка надо мной издевалась.</strong></p>
+      </div>
+
+      <div class="diary-note reveal reveal-delay-1">
+        <div class="diary-meta">
+          <span>Позавчера · 21:05</span>
+          <span>Лесная стоянка</span>
+        </div>
+        <p>Вышел на звук, думал — сова. Оказалось, это два ежа делят яблоко. Устроили настоящий спарринг. <strong>Снял их на память. Теперь у меня есть эксклюзивные кадры лесных разборок.</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Дневник (НОЧЬ) -->
+  <div class="diary-night">
+    <div class="diary-grid">
+      <div class="diary-note reveal">
+        <div class="diary-meta">
+          <span>Сегодня · 02:40</span>
+          <span>На болоте</span>
+        </div>
+        <p>Луна скрылась за тучами. Стою по колено в воде, жду, когда туман поднимется над мхом. <strong>Слышал, как кто-то большой прошел в кустах. Надеюсь, это лось. Или леший. Мы с ним теперь коллеги.</strong></p>
+      </div>
+
+      <div class="diary-note reveal reveal-delay-1">
+        <div class="diary-meta">
+          <span>Вчера · 23:15</span>
+          <span>У черного пня</span>
+        </div>
+        <p>Приехал на точку, а аккумулятор сел. Сижу в полной темноте, слушаю, как кричит сова. <strong>Без вспышки, без фонаря. Только я и лес. Впервые за долгое время почувствовал себя не фотографом, а частью леса.</strong></p>
+      </div>
+
+      <div class="diary-note reveal">
+        <div class="diary-meta">
+          <span>Суббота · 04:10</span>
+          <span>Глухая тропа</span>
+        </div>
+        <p>Шел по следам лисы. Она вывела меня на поляну, где растут светящиеся грибы. <strong>Снял их при свете луны. Кажется, я начал понимать язык ночного леса. Или просто не выспался.</strong></p>
+      </div>
+
+      <div class="diary-note reveal reveal-delay-1">
+        <div class="diary-meta">
+          <span>Позавчера · 01:30</span>
+          <span>Лесная стоянка</span>
+        </div>
+        <p>Ночью в лесу нет тишины. Трещат ветки, шуршит листва, где-то ухает филин. <strong>Поймал в кадр летучую мышь. Она была не в восторге, но позировала.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ФИЛОСОФИЯ -->
+<section id="philosophy" class="philosophy reveal">
+  <div class="section-label">Философия</div>
+  <blockquote>
+    «Лес не нуждается в том, чтобы его показывали. Он нуждается в том, чтобы его <em>услышали</em>. Я всего лишь перевожу его тишину на язык света».
+  </blockquote>
+  <cite>— из полевого дневника</cite>
+</section>
+
+<!-- КОНТАКТ -->
+<section id="contact" class="contact reveal">
+  <div class="section-label" style="justify-content:center;">Связаться</div>
+  
+  <h2 id="contactTitle">Свежий свет —<br>в моем <em>телеграме</em></h2>
+  
+  <p class="contact-subtitle" id="contactSubtitle">Здесь только избранное. Туман, мох, случайные ежи и то, что не вошло в галерею. Подписывайтесь, чтобы дышать лесом каждый день.</p>
+  
+  <a href="https://t.me/pbtgftgk" target="_blank" class="tg-btn">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+    </svg>
+    <span id="btnText">Перейти в канал</span>
+  </a>
+
+  <div class="tver-joke">
+    <span class="joke-day">Осторожно: тверские комары считают фотографа частью пейзажа.</span>
+    <span class="joke-night">Ночью главное — не наступить на лешего. Он обидчивый.</span>
+  </div>
+
+  <div class="contact-info">
+    <div class="contact-item">
+      <span>Локация</span>
+      <p>Тверь и леса вокруг</p>
+    </div>
+    <div class="contact-item">
+      <span>Почта</span>
+      <p>hello@forestlight.ru</p>
+    </div>
+    <div class="contact-item">
+      <span>Телеграм</span>
+      <p>@pbtgftgk</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  © Лесной свет · Сделано с любовью к лесу и делу
+</footer>
+
+<a href="#" class="back-to-top" id="backToTop" aria-label="Наверх">
+  <svg viewBox="0 0 24 24">
+    <polyline points="18 15 12 9 6 15"></polyline>
+  </svg>
+</a>
+
+<script>
+  const header = document.getElementById('header');
+  const backToTop = document.getElementById('backToTop');
+  const leshyBtn = document.getElementById('leshyBtn');
+  const marqueeSpans = document.querySelectorAll('.marquee-content span');
+  const btnText = document.getElementById('btnText');
+
+  // --- ЗВУК ---
+  let audioCtx;
+  let noiseSource;
+  let gainNode;
+  let isAudioPlaying = false;
+
+  function initAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  }
+
+  function playForestSound() {
+    initAudio();
+    if (isAudioPlaying) return;
+
+    const bufferSize = audioCtx.sampleRate * 2;
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+
+    noiseSource = audioCtx.createBufferSource();
+    noiseSource.buffer = buffer;
+    noiseSource.loop = true;
+    
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 400;
+
+    gainNode = audioCtx.createGain();
+    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 2);
+
+    noiseSource.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    noiseSource.start();
+    isAudioPlaying = true;
+  }
+
+  function stopForestSound() {
+    if (gainNode && audioCtx) {
+      gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
+      setTimeout(() => {
+        if (noiseSource) {
+          noiseSource.stop();
+          noiseSource.disconnect();
+        }
+        if (audioCtx.state === 'running') {
+          audioCtx.suspend();
+        }
+      }, 1000);
+      isAudioPlaying = false;
+    }
+  }
+
+  // --- СВЕТЛЯЧКИ ---
+  function createFireflies() {
+    const container = document.getElementById('fireflies');
+    const fireflyCount = 15;
+
+    for (let i = 0; i < fireflyCount; i++) {
+      const firefly = document.createElement('div');
+      firefly.classList.add('firefly');
+      firefly.style.left = Math.random() * 100 + 'vw';
+      firefly.style.top = (100 + Math.random() * 20) + 'vh';
+      
+      const duration = 10 + Math.random() * 20;
+      const delay = Math.random() * 10;
+      
+      firefly.style.animationDuration = duration + 's';
+      firefly.style.animationDelay = delay + 's';
+
+      const size = 2 + Math.random() * 4;
+      firefly.style.width = size + 'px';
+      firefly.style.height = size + 'px';
+
+      container.appendChild(firefly);
+    }
+  }
+  createFireflies();
+
+  // --- ЛОГИКА ПЕРЕКЛЮЧЕНИЯ РЕЖИМА ---
+  const contactTitle = document.getElementById('contactTitle');
+  const contactSubtitle = document.getElementById('contactSubtitle');
+  
+  const dayWords = ["Свет", "Тишина", "Мох", "Рассвет", "Туман", "Кора"];
+  const nightWords = ["Тьма", "Луна", "Сырость", "Тени", "Крик", "Холод"];
+
+  leshyBtn.addEventListener('click', () => {
+    document.body.classList.toggle('leshy-mode');
+    
+    if(document.body.classList.contains('leshy-mode')){
+      leshyBtn.innerHTML = '☀️ Дневной свет';
+      playForestSound();
+      
+      contactTitle.innerHTML = 'Стать<br><em>лешим</em>';
+      contactSubtitle.textContent = 'Вы теперь официально леший. Сидите в чаще, слушайте ветер и пейте чай из термоса. А фотографии я вам все равно пришлю.';
+      btnText.textContent = 'Перейти во тьму';
+      
+      marqueeSpans.forEach((span, index) => {
+        span.textContent = nightWords[index % 6];
+      });
+      
+    } else {
+      leshyBtn.innerHTML = '🌲 Режим лешего';
+      stopForestSound();
+      
+      contactTitle.innerHTML = 'Свежий свет —<br>в моем <em>телеграме</em>';
+      contactSubtitle.textContent = 'Здесь только избранное. Туман, мох, случайные ежи и то, что не вошло в галерею. Подписывайтесь, чтобы дышать лесом каждый день.';
+      btnText.textContent = 'Перейти в канал';
+      
+      marqueeSpans.forEach((span, index) => {
+        span.textContent = dayWords[index % 6];
+      });
+    }
+  });
+
+  // --- СКРОЛЛ ---
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 60);
+    if (window.scrollY > 500) {
+      backToTop.classList.add('show');
+    } else {
+      backToTop.classList.remove('show');
+    }
+  });
+
+  backToTop.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Анимации
+  const revealElements = document.querySelectorAll('.reveal');
+  const observerOptions = { threshold: 0.15, rootMargin: "0px 0px -50px 0px" };
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('active');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+  revealElements.forEach(el => revealObserver.observe(el));
+
+  // СОЛНЕЧНЫЙ ЦИКЛ (ДЕНЬ)
+  const sunData = {
+    dawn: {
+      num: "01",
+      title: "Первые лучи",
+      desc: "Самый мягкий и нежный свет. Лес просыпается, туман стелется по земле, а лучи пробиваются сквозь ветви, создавая волшебные лучи.",
+      quote: "«Ради этого света я готов вставать в 4 утра. Главное — не забыть термос».",
+      theme: "theme-dawn"
+    },
+    noon: {
+      num: "02",
+      title: "Жесткий свет",
+      desc: "Солнце в зените. Свет становится жестким, тени — короткими и резкими. Время для съемки текстур коры и мха в высоком контрасте.",
+      quote: "«В полдень лес не прячется. Он показывает все свои шрамы и трещины».",
+      theme: "theme-noon"
+    },
+    sunset: {
+      num: "03",
+      title: "Золотой час",
+      desc: "Магия заката. Теплый, золотистый свет заливает стволы, а тени становятся длинными и мягкими. Идеальное время для съемки.",
+      quote: "«Золотой час длится всего 20 минут. Но эти 20 минут стоят целого дня».",
+      theme: "theme-sunset"
+    },
+    twilight: {
+      num: "04",
+      title: "Синий час",
+      desc: "Солнце уже за горизонтом, но небо еще светлое. Лес погружается в холодные синие и фиолетовые тона. Пора доставать штатив.",
+      quote: "«В сумерках лес затихает. Кажется, что он готовится ко сну».",
+      theme: "theme-twilight"
+    }
+  };
+
+  const sunBtns = document.querySelectorAll('#seasons-day .season-btn');
+  const seasonContent = document.getElementById('seasonContent');
+  const seasonTextContainer = document.getElementById('seasonText');
+  const seasonNum = document.getElementById('seasonNum');
+  const seasonTitle = document.getElementById('seasonTitle');
+  const seasonDesc = document.getElementById('seasonDesc');
+  const seasonQuote = document.getElementById('seasonQuote');
+
+  sunBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      sunBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const sun = btn.getAttribute('data-season');
+      const data = sunData[sun];
+
+      seasonContent.className = 'season-content ' + data.theme;
+      seasonTextContainer.classList.add('hidden');
+
+      setTimeout(() => {
+        seasonNum.textContent = data.num;
+        seasonTitle.textContent = data.title;
+        seasonDesc.textContent = data.desc;
+        seasonQuote.textContent = data.quote;
+        seasonTextContainer.classList.remove('hidden');
+      }, 400);
+    });
+  });
+
+  // ФАЗЫ ЛУНЫ (НОЧЬ)
+  const moonData = {
+    newmoon: {
+      num: "01",
+      title: "Черное небо",
+      desc: "Луны не видно. Самые темные ночи в году. Идеальное время для съемки звездного неба сквозь кроны и для долгих выдержек.",
+      quote: "«В новолуние лес становится особенно глубоким. Света нет, но глаза привыкают».",
+      theme: "theme-newmoon"
+    },
+    crescent: {
+      num: "02",
+      title: "Тонкий серп",
+      desc: "Молодая луна дает мягкий, рассеянный свет. Тени становятся длинными и загадочными. Отличное время для съемки силуэтов.",
+      quote: "«Свет тонкого серпа похож на шепот. Его нужно ловить очень чутко».",
+      theme: "theme-crescent"
+    },
+    fullmoon: {
+      num: "03",
+      title: "Полная луна",
+      desc: "Луна светит так ярко, что можно читать. Лес становится черно-белым, а тени — резкими. Мое любимое время для прогулок.",
+      quote: "«В полнолуние лес не спит. Он смотрит на тебя своими серебряными глазами».",
+      theme: "theme-fullmoon"
+    },
+    waning: {
+      num: "04",
+      title: "Убывающая",
+      desc: "Луна идет на спад. Свет становится холоднее и тусклее. В воздухе висит предчувствие скорого рассвета.",
+      quote: "«Убывающая луна — время собирать камни и делать последние кадры перед утром».",
+      theme: "theme-waning"
+    }
+  };
+
+  const moonBtns = document.querySelectorAll('#seasons-night .season-btn');
+  const seasonContentNight = document.getElementById('seasonContentNight');
+  const seasonTextContainerNight = document.getElementById('seasonTextNight');
+  const seasonNumNight = document.getElementById('seasonNumNight');
+  const seasonTitleNight = document.getElementById('seasonTitleNight');
+  const seasonDescNight = document.getElementById('seasonDescNight');
+  const seasonQuoteNight = document.getElementById('seasonQuoteNight');
+
+  moonBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      moonBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const moon = btn.getAttribute('data-season');
+      const data = moonData[moon];
+
+      seasonContentNight.className = 'season-content ' + data.theme;
+      seasonTextContainerNight.classList.add('hidden');
+
+      setTimeout(() => {
+        seasonNumNight.textContent = data.num;
+        seasonTitleNight.textContent = data.title;
+        seasonDescNight.textContent = data.desc;
+        seasonQuoteNight.textContent = data.quote;
+        seasonTextContainerNight.classList.remove('hidden');
+      }, 400);
+    });
+  });
+</script>
+
+</body>
+</html>
