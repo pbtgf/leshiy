@@ -1093,7 +1093,6 @@
     opacity: 0.5;
   }
 
-  /* Смена шутки */
   .joke-day { display: block; }
   .joke-night { display: none; }
   body.leshy-mode .joke-day { display: none; }
@@ -1192,55 +1191,125 @@
     border-top: 1px solid rgba(201,162,39,.08);
   }
 
-  /* ---------- АДАПТИВ ---------- */
-  @media (max-width: 900px){
+  /* ==================================================== */
+  /* ---------- ПОЛНАЯ АДАПТАЦИЯ (MEDIA QUERIES) ---------- */
+  /* ==================================================== */
+
+  /* Планшеты и небольшие ноутбуки (до 1024px) */
+  @media (max-width: 1024px) {
+    .about { gap: 4vw; }
+    .gallery-head { margin-bottom: 50px; }
+    .contact-info { gap: 30px; }
+  }
+
+  /* Горизонтальные планшеты и крупные телефоны (до 900px) */
+  @media (max-width: 900px) {
+    /* Хедер */
     .header-right { gap: 20px; }
-    nav ul{ display:none; }
+    nav ul { display: none; } /* Скрываем меню на планшетах, оставляем только кнопку режима */
+
+    /* Главный экран */
+    .hero-content { margin-top: 0; }
     
-    .about{ grid-template-columns: 1fr; gap: 50px; }
-    .about-visual{ max-width: 320px; margin: 0 auto; }
-    .about-stats { justify-content: space-around; }
-    
-    /* Дневная галерея на планшете */
+    /* О себе */
+    .about { 
+      grid-template-columns: 1fr; 
+      gap: 40px; 
+      text-align: center;
+    }
+    .about-text-container { padding: 0 10px; }
+    .about-text p { margin-left: auto; margin-right: auto; }
+    .about-stats { justify-content: center; }
+    .about-visual { max-width: 320px; margin: 0 auto; }
+
+    /* Галерея День */
     #gallery-day .gallery { grid-template-columns: 1fr 1fr; }
-    #gallery-day .frame:nth-child(4){ grid-column: span 2; }
-    
-    /* Ночная галерея на планшете - сбрасываем отступы */
+    #gallery-day .frame:nth-child(4) { grid-column: span 2; aspect-ratio: 16/10; }
+
+    /* Галерея Ночь */
     #gallery-night .gallery { grid-template-columns: 1fr 1fr; }
     #gallery-night .frame:nth-child(1),
     #gallery-night .frame:nth-child(2),
     #gallery-night .frame:nth-child(3),
     #gallery-night .frame:nth-child(5) { margin-top: 0 !important; }
     #gallery-night .frame:nth-child(4) { grid-column: span 2; margin-top: 0 !important; }
-    
+
+    /* Сезоны */
     .seasons-wrapper { grid-template-columns: 1fr; gap: 30px; }
-    .seasons-nav { flex-direction: row; flex-wrap: wrap; justify-content: center; }
-    .season-btn { border-left: none; border-bottom: 2px solid rgba(201,162,39,.2); padding: 10px 15px; font-size: 1rem; }
-    .season-btn.active { border-bottom: 2px solid var(--gold); font-size: 1rem; padding-left: 15px; background: transparent; }
+    .seasons-nav { 
+      flex-direction: row; 
+      flex-wrap: wrap; 
+      justify-content: center; 
+      border-bottom: 1px solid rgba(201,162,39,.1);
+      padding-bottom: 20px;
+    }
+    .season-btn { 
+      border-left: none; 
+      border-bottom: 2px solid transparent; 
+      padding: 10px 15px; 
+      font-size: 1rem; 
+    }
+    .season-btn.active { 
+      border-bottom: 2px solid var(--gold); 
+      font-size: 1.1rem; 
+      padding-left: 15px; 
+      background: transparent; 
+    }
     .season-btn.active::after { display: none; }
     .season-content { padding: 30px 20px; min-height: auto; }
-    
+
+    /* Дневник */
     .diary-grid { grid-template-columns: 1fr; }
-    .hero-content { margin-top: 0; }
-    section { padding: 100px 6vw; }
-    .back-to-top { bottom: 20px; right: 20px; width: 45px; height: 45px; }
-  }
-  @media (max-width: 560px){
-    #gallery-day .gallery { grid-template-columns: 1fr; }
-    #gallery-day .frame:nth-child(4){ grid-column: span 1; aspect-ratio: 3/4; }
-    
-    #gallery-night .gallery { grid-template-columns: 1fr; }
-    #gallery-night .frame:nth-child(4) { grid-column: span 1; aspect-ratio: 3/4; }
-    
-    .about-stats { flex-direction: column; gap: 20px; }
+
+    /* Контакты */
     .contact-info { flex-direction: column; gap: 20px; text-align: center; }
     .contact-item { text-align: center; }
-    .tg-btn { padding: 16px 30px; font-size: 0.9rem; flex-direction: column; }
-    .season-number { font-size: 6rem; }
-    .mode-toggle-header { padding: 6px 10px; font-size: 0.6rem; }
-    .logo { font-size: 0.9rem; letter-spacing: 0.2em; }
+
+    /* Кнопка наверх */
+    .back-to-top { bottom: 20px; right: 20px; width: 45px; height: 45px; }
+
+    section { padding: 100px 6vw; }
   }
 
+  /* Вертикальные планшеты и телефоны (до 768px) */
+  @media (max-width: 768px) {
+    .hero h1 { font-size: clamp(2.2rem, 8vw, 4rem); }
+    
+    /* Галерея в одну колонку */
+    #gallery-day .gallery { grid-template-columns: 1fr; }
+    #gallery-day .frame:nth-child(4) { grid-column: span 1; aspect-ratio: 3/4; }
+
+    #gallery-night .gallery { grid-template-columns: 1fr; }
+    #gallery-night .frame:nth-child(4) { grid-column: span 1; aspect-ratio: 3/4; }
+
+    /* Кнопка Telegram */
+    .tg-btn { padding: 16px 30px; font-size: 1rem; flex-direction: column; gap: 10px; }
+
+    /* Уменьшаем размер номера в сезонах */
+    .season-number { font-size: 7rem; }
+  }
+
+  /* Маленькие телефоны (до 480px) */
+  @media (max-width: 480px) {
+    .logo { font-size: 0.9rem; letter-spacing: 0.2em; }
+    .mode-toggle-header { padding: 6px 10px; font-size: 0.6rem; }
+    
+    .about-stats { flex-direction: column; gap: 20px; align-items: center; }
+    .about-visual { max-width: 280px; }
+    
+    .season-number { font-size: 5rem; }
+    .season-title { font-size: 1.8rem; }
+    
+    .diary-note { padding: 20px; }
+    
+    .contact h2 { font-size: 1.8rem; }
+    .tg-btn { padding: 14px 20px; font-size: 0.85rem; }
+    .tver-joke { font-size: 0.75rem; }
+
+    section { padding: 80px 4vw; }
+  }
+
+  /* Отключение анимаций для пользователей с эпилепсией */
   @media (prefers-reduced-motion: reduce){
     *{ animation: none !important; transition: none !important; }
     .frame{ opacity:1; transform:none; margin-top: 0 !important; }
