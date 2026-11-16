@@ -1195,38 +1195,27 @@
   /* ---------- ПОЛНАЯ АДАПТАЦИЯ (MEDIA QUERIES) ---------- */
   /* ==================================================== */
 
-  /* Планшеты и небольшие ноутбуки (до 1024px) */
   @media (max-width: 1024px) {
     .about { gap: 4vw; }
     .gallery-head { margin-bottom: 50px; }
     .contact-info { gap: 30px; }
   }
 
-  /* Горизонтальные планшеты и крупные телефоны (до 900px) */
   @media (max-width: 900px) {
-    /* Хедер */
     .header-right { gap: 20px; }
-    nav ul { display: none; } /* Скрываем меню на планшетах, оставляем только кнопку режима */
+    nav ul { display: none; }
 
-    /* Главный экран */
     .hero-content { margin-top: 0; }
     
-    /* О себе */
-    .about { 
-      grid-template-columns: 1fr; 
-      gap: 40px; 
-      text-align: center;
-    }
+    .about { grid-template-columns: 1fr; gap: 40px; text-align: center; }
     .about-text-container { padding: 0 10px; }
     .about-text p { margin-left: auto; margin-right: auto; }
     .about-stats { justify-content: center; }
     .about-visual { max-width: 320px; margin: 0 auto; }
 
-    /* Галерея День */
     #gallery-day .gallery { grid-template-columns: 1fr 1fr; }
     #gallery-day .frame:nth-child(4) { grid-column: span 2; aspect-ratio: 16/10; }
 
-    /* Галерея Ночь */
     #gallery-night .gallery { grid-template-columns: 1fr 1fr; }
     #gallery-night .frame:nth-child(1),
     #gallery-night .frame:nth-child(2),
@@ -1234,7 +1223,6 @@
     #gallery-night .frame:nth-child(5) { margin-top: 0 !important; }
     #gallery-night .frame:nth-child(4) { grid-column: span 2; margin-top: 0 !important; }
 
-    /* Сезоны */
     .seasons-wrapper { grid-template-columns: 1fr; gap: 30px; }
     .seasons-nav { 
       flex-direction: row; 
@@ -1243,53 +1231,35 @@
       border-bottom: 1px solid rgba(201,162,39,.1);
       padding-bottom: 20px;
     }
-    .season-btn { 
-      border-left: none; 
-      border-bottom: 2px solid transparent; 
-      padding: 10px 15px; 
-      font-size: 1rem; 
-    }
-    .season-btn.active { 
-      border-bottom: 2px solid var(--gold); 
-      font-size: 1.1rem; 
-      padding-left: 15px; 
-      background: transparent; 
-    }
+    .season-btn { border-left: none; border-bottom: 2px solid transparent; padding: 10px 15px; font-size: 1rem; }
+    .season-btn.active { border-bottom: 2px solid var(--gold); font-size: 1.1rem; padding-left: 15px; background: transparent; }
     .season-btn.active::after { display: none; }
     .season-content { padding: 30px 20px; min-height: auto; }
 
-    /* Дневник */
     .diary-grid { grid-template-columns: 1fr; }
 
-    /* Контакты */
     .contact-info { flex-direction: column; gap: 20px; text-align: center; }
     .contact-item { text-align: center; }
 
-    /* Кнопка наверх */
     .back-to-top { bottom: 20px; right: 20px; width: 45px; height: 45px; }
 
     section { padding: 100px 6vw; }
   }
 
-  /* Вертикальные планшеты и телефоны (до 768px) */
   @media (max-width: 768px) {
     .hero h1 { font-size: clamp(2.2rem, 8vw, 4rem); }
     
-    /* Галерея в одну колонку */
     #gallery-day .gallery { grid-template-columns: 1fr; }
     #gallery-day .frame:nth-child(4) { grid-column: span 1; aspect-ratio: 3/4; }
 
     #gallery-night .gallery { grid-template-columns: 1fr; }
     #gallery-night .frame:nth-child(4) { grid-column: span 1; aspect-ratio: 3/4; }
 
-    /* Кнопка Telegram */
     .tg-btn { padding: 16px 30px; font-size: 1rem; flex-direction: column; gap: 10px; }
 
-    /* Уменьшаем размер номера в сезонах */
     .season-number { font-size: 7rem; }
   }
 
-  /* Маленькие телефоны (до 480px) */
   @media (max-width: 480px) {
     .logo { font-size: 0.9rem; letter-spacing: 0.2em; }
     .mode-toggle-header { padding: 6px 10px; font-size: 0.6rem; }
@@ -1309,7 +1279,6 @@
     section { padding: 80px 4vw; }
   }
 
-  /* Отключение анимаций для пользователей с эпилепсией */
   @media (prefers-reduced-motion: reduce){
     *{ animation: none !important; transition: none !important; }
     .frame{ opacity:1; transform:none; margin-top: 0 !important; }
@@ -1332,11 +1301,11 @@
   <div class="header-right">
     <nav>
       <ul>
-        <li><a href="#about">О себе</a></li>
-        <li><a href="#gallery">Галерея</a></li>
+        <li><a href="#about">Смотритель</a></li>
+        <li><a href="#gallery">Тропы</a></li>
         <li><a href="#seasons">Циклы</a></li>
-        <li><a href="#diary">Дневник</a></li>
-        <li><a href="#contact">Контакты</a></li>
+        <li><a href="#diary">Заметки</a></li>
+        <li><a href="#contact">Шёпот</a></li>
       </ul>
     </nav>
     <button class="mode-toggle-header" id="leshyBtn">🌲 Режим лешего</button>
@@ -1382,7 +1351,7 @@
       
       <!-- Дневной текст -->
       <div class="about-text about-day">
-        <div class="section-label">О себе</div>
+        <div class="section-label">Лесной смотритель</div>
         <h2>Я не фотографирую лес.<br>Я <em>разговариваю</em> с ним.</h2>
         <p><strong>Двенадцать лет</strong> я хожу по одним и тем же тропам — и каждый раз вижу их впервые. Лес не позирует. Он живёт своей жизнью, а я лишь свидетель.</p>
         <p>Мой кабинет — это мох, кора и утренний туман. Мой рабочий день начинается за час до рассвета и заканчивается, когда последний луч уходит за стволы.</p>
@@ -1450,7 +1419,7 @@
 <section id="gallery-day" class="gallery-section-day">
   <div class="gallery-head reveal">
     <div>
-      <div class="section-label">Избранное</div>
+      <div class="section-label">Лесные тропы</div>
       <h2>Свет, который<br><em>запомнился</em></h2>
     </div>
   </div>
@@ -1487,7 +1456,7 @@
 <section id="gallery-night" class="gallery-section-night">
   <div class="gallery-head reveal">
     <div>
-      <div class="section-label">Во тьме</div>
+      <div class="section-label">Тени чащи</div>
       <h2>Ночные<br><em>тени</em></h2>
     </div>
   </div>
@@ -1667,7 +1636,7 @@
 
 <!-- ФИЛОСОФИЯ -->
 <section id="philosophy" class="philosophy reveal">
-  <div class="section-label">Философия</div>
+  <div class="section-label">Философия леса</div>
   <blockquote>
     «Лес не нуждается в том, чтобы его показывали. Он нуждается в том, чтобы его <em>услышали</em>. Я всего лишь перевожу его тишину на язык света».
   </blockquote>
@@ -1676,7 +1645,7 @@
 
 <!-- КОНТАКТ -->
 <section id="contact" class="contact reveal">
-  <div class="section-label" style="justify-content:center;">Связаться</div>
+  <div class="section-label" style="justify-content:center;">Шёпот в чащу</div>
   
   <h2 id="contactTitle">Свежий свет —<br>в моем <em>телеграме</em></h2>
   
